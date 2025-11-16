@@ -1,0 +1,93 @@
+import java.io.*;
+import java.util.*;
+
+public class Main {
+
+    static int N, M;
+    static int[][] map;
+    static boolean[][] visited;
+    static int max = 0;
+
+    // 상하좌우
+    static int[] dx = {0, 0, 1, -1};
+    static int[] dy = {1, -1, 0, 0};
+
+    public static void main(String[] args) throws Exception {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st = new StringTokenizer(br.readLine());
+
+        N = Integer.parseInt(st.nextToken());
+        M = Integer.parseInt(st.nextToken());
+
+        map = new int[N][M];
+        visited = new boolean[N][M];
+
+        for (int i = 0; i < N; i++) {
+            st = new StringTokenizer(br.readLine());
+            for (int j = 0; j < M; j++) {
+                map[i][j] = Integer.parseInt(st.nextToken());
+            }
+        }
+
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < M; j++) {
+                visited[i][j] = true;
+                dfs(i, j, map[i][j], 1);
+                visited[i][j] = false;
+
+                checkT(i, j); // ㅗ 모양 처리
+            }
+        }
+
+        System.out.println(max);
+    }
+
+    // DFS로 만들 수 있는 4개짜리  모양
+    static void dfs(int x, int y, int sum, int depth) {
+        if (depth == 4) {
+            max = Math.max(max, sum);
+            return;
+        }
+
+        for (int d = 0; d < 4; d++) {
+            int nx = x + dx[d];
+            int ny = y + dy[d];
+
+            if (nx < 0 || ny < 0 || nx >= N || ny >= M) continue;
+            if (visited[nx][ny]) continue;
+
+            visited[nx][ny] = true;
+            dfs(nx, ny, sum + map[nx][ny], depth + 1);
+            visited[nx][ny] = false;
+        }
+    }
+
+    // ㅗ 모양 4가지 체크
+    static void checkT(int x, int y) {
+        int center = map[x][y];
+
+        // ㅗ (위로 돌출)
+        if (x >= 0 && x + 1 < N && y - 1 >= 0 && y + 1 < M) {
+            int sum = center + map[x][y - 1] + map[x][y + 1] + map[x + 1][y];
+            max = Math.max(max, sum);
+        }
+
+        // ㅜ (아래로 돌출)
+        if (x - 1 >= 0 && x < N && y - 1 >= 0 && y + 1 < M) {
+            int sum = center + map[x][y - 1] + map[x][y + 1] + map[x - 1][y];
+            max = Math.max(max, sum);
+        }
+
+        // ㅏ (오른쪽으로 돌출)
+        if (x - 1 >= 0 && x + 1 < N && y + 1 < M) {
+            int sum = center + map[x - 1][y] + map[x + 1][y] + map[x][y + 1];
+            max = Math.max(max, sum);
+        }
+
+        // ㅓ (왼쪽으로 돌출)
+        if (x - 1 >= 0 && x + 1 < N && y - 1 >= 0) {
+            int sum = center + map[x - 1][y] + map[x + 1][y] + map[x][y - 1];
+            max = Math.max(max, sum);
+        }
+    }
+}
